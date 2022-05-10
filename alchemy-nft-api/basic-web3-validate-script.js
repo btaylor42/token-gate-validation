@@ -11,44 +11,63 @@ const web3 = createAlchemyWeb3(
 
 // The wallet address we want to query for NFTs:
 const ownerAddr = "0x99390c75DB58059274d5b015132839CbFb3F4230";
+
+// Create a NFTs object
 const nfts = await web3.alchemy.getNfts({
-  owner: ownerAddr
+    owner: ownerAddr
 })
 
+// Contract address of NFT to validate against
+const summitContractAddress = "0xda749d35f5be1f7248aa7280b97444739c61fe51";
+
+const response = await web3.alchemy.getNftMetadata({
+contractAddress: summitContractAddress,
+tokenId: "0x01"
+})
+
+// Initializing additional variables
+const totalNFTCount = nfts.totalCount;
+const nftsOwned = nfts.ownedNfts;
+
 // Print owner's wallet address:
-console.log("fetching NFTs for address:", ownerAddr);
+console.log("Fetching NFTs for address:", ownerAddr);
 console.log("...");
 
 // Print total NFT count returned in the response:
-console.log("number of NFTs found:", nfts.totalCount);
+console.log("Number of NFTs found:", totalNFTCount);
 console.log("...");
 
-// Check owner NFT for Summit 2022 NFT. Print message, contract address, token ID if found:
-for (const nft of nfts.ownedNfts) {
-  if (nft.contract.address == "0xda749d35f5be1f7248aa7280b97444739c61fe51") {
-      console.log("YAY! THIS IS AWESOME!!");
-      console.log("contract address:", nft.contract.address);
-      console.log("token ID:", nft.id.tokenId);
-  }
-  break;
-
+// Function to check owner NFTs for Summit 2022 NFT. Display message, contract address, token ID if found:
+function tokenValidation(nftsOwned, summitContractAddress) {
+    for (const nft of nftsOwned) {
+        if (nft.contract.address == summitContractAddress) {
+            console.log("Success");
+            console.log("contract address:", nft.contract.address);
+            console.log("token ID:", nft.id.tokenId);
+            return;
+        }
+    }
+    console.log("Fail");
 }
-console.log("===");
+// Display metadata for the Summit 2022 NFT:
+function displayNFTMetadata() {
+    console.log("Fetching metadata for a Summit 2022 NFT...");
+    console.log(response.metadata);
+}
 
-// Fetch metadata for the Summit 2022 NFT:
-console.log("fetching metadata for a Summit 2022 NFT...");
-const response = await web3.alchemy.getNftMetadata({
-  contractAddress: "0xda749d35f5be1f7248aa7280b97444739c61fe51",
-  tokenId: "0x01"
-})
+tokenValidation(nftsOwned, summitContractAddress);
+
+console.log("=================");
+
+displayNFTMetadata();
 
 // Uncomment this line to see the full api response:
-console.log(response.metadata);
+// console.log(response.metadata);
 
 // Print some commonly used fields:
-console.log("NFT name: ", response.title);
-console.log("token type: ", response.id.tokenMetadata.tokenType);
-console.log("tokenUri: ", response.tokenUri.gateway);
-console.log("image url: ", response.metadata.image);
-console.log("time last updated: ", response.timeLastUpdated);
-console.log("===");
+// console.log("NFT name: ", response.title);
+// console.log("token type: ", response.id.tokenMetadata.tokenType);
+// console.log("tokenUri: ", response.tokenUri.gateway);
+// console.log("image url: ", response.metadata.image);
+// console.log("time last updated: ", response.timeLastUpdated);
+// console.log("===");
